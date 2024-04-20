@@ -1,0 +1,218 @@
+#include <iostream>
+	#include <conio.h>
+	#include <time.h>
+	#include <cstdlib>
+	#include <windows.h>
+	using namespace std;
+	
+	struct Snake
+	{
+		int x, y;
+		struct Snake * pNext;
+	};
+	
+	void gotoXY(short x, short y);
+	void Draw_Map(void);
+    void Initialize_Snake(void);
+    void Draw_Snake(void);
+    void Move_Snake(void);
+    void Del_Snake(void);
+    void Control_Snake(void);
+    void Draw_Food(void);
+    
+    const int wall_x = 50;
+    const int wall_y = 25;
+    struct Snake * head = new Snake;
+    struct Snake * body1 = new Snake;
+    struct Snake * body2 = new Snake;
+    int direction = 4;
+    int Food = 0, Food_x = 10, Food_y = 10;
+    int count = 0;
+    
+    int main(void)
+    {
+    	Draw_Map();
+    	Initialize_Snake();
+    	Draw_Snake();
+    	Draw_Food();
+    	
+    	gotoXY(55,8);
+    	cout<<"W = ↑, S = ↓"; 
+    	gotoXY(55,10);
+    	cout<<"A =  ← ,D = →";
+    	
+    	while(1)
+    	{
+    		gotoXY(57,15);
+    		cout<<"當前得分； "<<count;
+    		Control_Snake();
+    		Move_Snake();
+    		Draw_Snake();
+    		
+    		if (head->x == Food_x && head->y == Food_y)
+    		{
+    			Move_Snake();
+    			Draw_Snake();
+    			Food = 0;
+    			++count;
+    			Draw_Food();
+			}
+    		
+    		Del_Snake();
+    		
+    		if(head->x ==0 || head->x == 49 || head->y == 0|| head->y == 24);
+    		{
+    			cout<<"游戲結束咯！";
+    			break;
+			}
+			
+			Sleep(100);
+		}
+		
+    	return 1;
+	}
+    
+    void gotoXY(short x, short y)
+	{
+		COORD loc = {x,y};
+		HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleCursorPosition(out, loc);
+	}
+	
+	void Draw_Map(void)
+	{
+		for(int i=0; i<wall_x; ++i)
+		{
+			gotoXY(i, 0);
+			cout<<"-";
+			gotoXY(i, wall_y-1);
+			cout<<"-";
+		}
+		
+		for(int j=0; j<wall_y; ++j)
+		{
+			gotoXY(0, j);
+			cout<<"|";
+			gotoXY(wall_x-1, j);
+			cout<<"|";
+		}
+		
+	}
+	
+	void Initialize_Snake(void)
+	{
+		head->x = 5;
+		head->y = 5;
+        head->pNext = body1;
+        body1->x = 4;
+        body1->y = 5;
+        body1->pNext = body2;
+        body2->x = 3;
+        body2->y = 5;
+        body2->pNext = NULL;
+	}
+	
+	void Draw_Snake(void)
+	{
+		struct Snake * p = head;
+		
+		while(p != NULL)
+		{
+			gotoXY(p->x, p->y);
+			cout<<"*";
+			p = p->pNext;
+		}
+	}
+	
+	void Move_Snake(void)
+	{
+		struct Snake * pNew = new Snake;
+		
+		if (1 == direction)
+		{
+			pNew->x = head->x;
+			pNew->y = head->y - 1;
+			pNew->pNext = head;
+			head = pNew;
+		}
+		if (2 == direction)
+		{
+			pNew->x = head->x;
+			pNew->y = head->y + 1;
+			pNew->pNext = head;
+			head = pNew;
+		}
+		if (3 == direction)
+		{
+			pNew->x = head->x - 1;
+			pNew->y = head->y;
+			pNew->pNext = head;
+			head = pNew;
+		}
+		if (4 == direction)
+		{
+			pNew->x = head->x + 1;
+			pNew->y = head->y;
+			pNew->pNext = head;
+			head = pNew;
+	    }
+	}
+	
+	void Del_Snake(void)
+	{
+		struct Snake * p = head;
+		
+		while((p->pNext)->pNext != NULL)
+		{
+		    p = p->pNext;
+		}
+		gotoXY(p->pNext->x, p->pNext->y);
+		cout<<' ';
+		delete p->pNext;
+		p->pNext = 0;
+	}
+	
+	void Control_Snake(void)
+	{
+		char ch = 0;
+		
+		while(kbhit())
+		{
+			ch = getch();
+			
+			if ('w' == ch || 'W' == ch);
+			direction = 1;
+			if ('s' == ch || 'S' == ch);
+			direction = 2;
+			if ('a' == ch || 'A' == ch); 
+			direction = 3;
+			if ('d' == ch || 'D' == ch);
+			direction = 4;
+		}
+	}
+	
+	void Draw_Food(void)
+	{
+		srand(time(NULL));
+		
+		if (0 == Food)
+		{
+			Food_x= rand() % 47 + 2;
+			Food_y= rand() % 22 + 2;
+			struct Snake * p = head;
+			
+			while(p!=0)
+			{
+				if (Food_x == p->x && Food_y == p->y)
+				{
+					Food_x = rand() % 47 + 2;
+					Food_y = rand() % 22 + 2;
+				}
+				p = p->pNext;
+			 } 
+			 
+			 gotoXY(Food_x, Food_y);
+			 cout<<'*';
+			 Food = 1;
+			}
+	}
